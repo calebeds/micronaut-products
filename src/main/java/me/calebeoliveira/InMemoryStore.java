@@ -1,0 +1,36 @@
+package me.calebeoliveira;
+
+import jakarta.annotation.PostConstruct;
+import jakarta.inject.Singleton;
+import me.calebeoliveira.product.Product;
+import net.datafaker.Faker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.IntStream;
+
+@Singleton
+public class InMemoryStore {
+    private static final Logger LOG = LoggerFactory.getLogger(InMemoryStore.class);
+    private final Map<Integer, Product> products = new HashMap<>();
+    private final Faker faker = new Faker();
+
+    @PostConstruct
+    public void initialize() {
+        IntStream.range(0, 10).forEach(
+                this::addProduct
+        );
+    }
+
+    private void addProduct(int id) {
+        Product product = new Product(id, faker.coffee().blendName(), Product.Type.COFFEE);
+        products.put(id, product);
+        LOG.debug("Added Product: {}", product);
+    }
+
+    public Map<Integer, Product> getProducts() {
+        return products;
+    }
+}

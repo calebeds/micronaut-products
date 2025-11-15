@@ -30,7 +30,7 @@ class ProductsControllerTest {
     @Test
     void shouldReturnTenProducts_whenCallingGetOnProductsEndpoint() throws IOException {
         JsonNode response = client.toBlocking().retrieve("/", JsonNode.class);
-        LOG.debug("Retrieved products: {}" + logProducts(response));
+        LOG.debug("Retrieved products: {}", logProducts(response));
         assertEquals(10, response.size());
     }
 
@@ -40,6 +40,22 @@ class ProductsControllerTest {
         assertEquals(0, response.id());
         assertEquals(Product.Type.COFFEE, response.type());
         assertNotNull(response.name());
+    }
+
+    @Test
+    void shouldLimitAmountOfProductsTo5_whenCallingFilterEndpointWithMaxQueryParam() throws IOException {
+        JsonNode response = client.toBlocking().retrieve("/filter?max=5", JsonNode.class);
+        LOG.debug("Retrieved 5 products: {}", logProducts(response));
+        assertEquals(5, response.size());
+    }
+
+    @Test
+    void shouldFilter_whenUsingOffsetAndMaxLimit() throws IOException {
+        JsonNode response = client.toBlocking().retrieve("/filter?max=2&offset=6", JsonNode.class);
+        LOG.debug("Retrieved 2 products starting with offset 6: {}", logProducts(response));
+        assertEquals(2, response.size());
+        assertEquals(6, response.get(0).get("id").getIntValue());
+        assertEquals(7, response.get(1).get("id").getIntValue());
     }
 
     private String logProducts(JsonNode response) throws IOException {

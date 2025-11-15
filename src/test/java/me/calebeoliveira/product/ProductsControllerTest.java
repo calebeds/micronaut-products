@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
 @MicronautTest
@@ -31,6 +32,14 @@ class ProductsControllerTest {
         JsonNode response = client.toBlocking().retrieve("/", JsonNode.class);
         LOG.debug("Retrieved products: {}" + logProducts(response));
         assertEquals(10, response.size());
+    }
+
+    @Test
+    void shouldFetchProduct_whenCallingGetOnProductsWithId() {
+        Product response = client.toBlocking().retrieve("/0", Product.class);
+        assertEquals(0, response.id());
+        assertEquals(Product.Type.COFFEE, response.type());
+        assertNotNull(response.name());
     }
 
     private String logProducts(JsonNode response) throws IOException {

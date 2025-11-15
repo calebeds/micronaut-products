@@ -2,6 +2,7 @@ package me.calebeoliveira.product;
 
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.PathVariable;
 import me.calebeoliveira.InMemoryStore;
 
 import java.util.ArrayList;
@@ -19,5 +20,10 @@ class ProductsController {
     @Get
     public List<Product> listAllProducts() {
         return new ArrayList<>(store.getProducts().values());
+    }
+
+    @Get("{id}")
+    public Product getProduct(@PathVariable Integer id) {
+        return store.getProducts().get(id);
     }
 }

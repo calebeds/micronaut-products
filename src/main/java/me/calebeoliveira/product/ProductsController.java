@@ -4,13 +4,14 @@ import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.QueryValue;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import me.calebeoliveira.InMemoryStore;
 
-import javax.swing.text.html.Option;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Tag(name = "public")
 @Controller("/products")
 class ProductsController {
 

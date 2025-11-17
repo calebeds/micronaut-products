@@ -32,4 +32,9 @@ class AdminProductsController {
         Product updatedProduct = new Product(id, request.name(), request.type());
         return store.addProduct(updatedProduct);
     }
+
+    @Delete("{id}")
+    public Product deleteProduct(@PathVariable Integer id) {
+        return store.removeProductById(id);
+    }
 }

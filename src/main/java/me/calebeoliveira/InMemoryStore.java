@@ -38,4 +38,8 @@ public class InMemoryStore {
     public Map<Integer, Product> getProducts() {
         return products;
     }
+
+    public Product removeProductById(Integer id) {
+        return products.remove(id);
+    }
 }

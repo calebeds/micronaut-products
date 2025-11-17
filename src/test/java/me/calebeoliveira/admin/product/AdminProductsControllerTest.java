@@ -1,6 +1,8 @@
 package me.calebeoliveira.admin.product;
 
+import io.micronaut.core.type.Argument;
 import io.micronaut.http.HttpRequest;
+import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.client.HttpClient;
 import io.micronaut.http.client.annotation.Client;
@@ -102,4 +104,36 @@ class AdminProductsControllerTest {
         assertEquals(updateRequest.name(), productFromStore.name());
         assertEquals(updateRequest.type(), productFromStore.type());
     }
+
+    @Test
+    void shouldDeleteProduct_whenTheDeleteEndpointIsCalledWithId() {
+        Product productToDelete = new Product(987, "delete-me", Product.Type.OTHER);
+        store.addProduct(productToDelete);
+        assertTrue(store.getProducts().containsKey(productToDelete.id()));
+        assertTrue(store.getProducts().containsValue(productToDelete));
+
+        final HttpResponse<Product> response = httpClient.toBlocking().exchange(
+                HttpRequest.DELETE("/" + productToDelete.id()),
+                Argument.of(Product.class)
+        );
+
+        assertEquals(HttpStatus.OK, response.getStatus());
+        assertTrue(response.getBody().isPresent());
+        assertEquals(productToDelete.id(), response.getBody().get().id());
+        assertEquals(productToDelete.name(), response.getBody().get().name());
+        assertEquals(productToDelete.type(), response.getBody().get().type());
+    }
+    @Test
+    void shouldReturnNotFound_whenTheDeleteEndpointIsCalledWithIdNonExistent() {
+       final var productId = 987;
+       store.removeProductById(productId);
+       assertNull(store.getProducts().get(productId));
+
+       var response = assertThrows(HttpClientResponseException.class,
+               () -> httpClient.toBlocking().exchange(
+                       HttpRequest.DELETE("/" + productId)
+               ));
+       assertEquals(HttpStatus.NOT_FOUND, response.getStatus());
+    }
+
 }

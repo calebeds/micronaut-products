@@ -61,4 +61,45 @@ class AdminProductsControllerTest {
 
         assertEquals(HttpStatus.CONFLICT, expectedConflict.getStatus());
     }
+
+    @Test
+    void shouldUpdateProduct_whenCallingPutAdminProductEndpoint() {
+        Product productToUpdate = new Product(999, "old-value", Product.Type.OTHER);
+
+        store.getProducts().put(productToUpdate.id(), productToUpdate);
+        assertEquals(productToUpdate, store.getProducts().get(productToUpdate.id()));
+
+        UpdateProductRequest updateRequest = new UpdateProductRequest("new-value", Product.Type.TEA);
+
+        var response = httpClient.toBlocking().exchange(
+                HttpRequest.PUT("/" + productToUpdate.id(), updateRequest),
+                Product.class
+        );
+
+        assertEquals(HttpStatus.OK, response.getStatus());
+        var productFromStore = store.getProducts().get(productToUpdate.id());
+        assertEquals(updateRequest.name(), productFromStore.name());
+        assertEquals(updateRequest.type(), productFromStore.type());
+    }
+
+    @Test
+    void shouldAddNewProduct_whenNonExistentProductIsPassedInPutAdminProductEndpoint() {
+        final int productId = 999;
+
+        store.getProducts().remove(productId);
+        assertNull(store.getProducts().get(productId));
+
+        UpdateProductRequest updateRequest = new UpdateProductRequest("new-value", Product.Type.TEA);
+
+        var response = httpClient.toBlocking().exchange(
+                HttpRequest.PUT("/" + productId, updateRequest),
+                Product.class
+        );
+
+        assertEquals(HttpStatus.OK, response.getStatus());
+        var productFromStore = store.getProducts().get(productId);
+        assertEquals(productId, productFromStore.id());
+        assertEquals(updateRequest.name(), productFromStore.name());
+        assertEquals(updateRequest.type(), productFromStore.type());
+    }
 }
